@@ -181,12 +181,38 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    return _.reduce(collection, function(passed, item) {
+      if( iterator === undefined ) {
+        if( !item || !passed ) return false;
+      }
+      else if( !iterator(item) || !passed ) {
+        return false;
+      }
+      return true;
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    if( collection.length === 0 ) {
+          return false;
+      }
+    var passed = false;
+    _.every(collection, function(item) {
+      if( iterator === undefined ) {
+        if( item === true ) { 
+          passed = true;
+          return;
+        }
+      } else if( iterator(item) ) {
+        passed = true;
+        return true; 
+        }
+      else return false; 
+    });
+    return passed;
   };
 
 
@@ -209,11 +235,31 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    //create args array excluding index 0    
+      var args = Array.prototype.slice.call(arguments, 1);
+    //iterate over args array
+      _.each(args, function(item, index){
+    //for each object key value pair, add to obj
+      for( var key in item ) {
+          obj[key] = item[key];
+      }
+      });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    //create array of arguments excluding index 0
+    var args = Array.prototype.slice.call(arguments, 1);
+    //iterate using _.each
+    _.each(args, function(item, index) {
+      for( var key in item ) {
+        //check if key already exists in obj
+        if( !(key in obj) ) obj[key] = item[key];
+      }
+    });
+    return obj;
   };
 
 
@@ -257,6 +303,20 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    //set up data structure for caching
+    var self = this;
+    self._values = self._values || {};
+    var result;
+    //inner function
+    return function(key) {
+      if( self._values[key] !== undefined ) { 
+      result = self._values[key];
+      } else { 
+      result = func.apply(this, arguments);
+      self._values[key] = result;
+      }
+      return result;
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -266,6 +326,13 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    //set up array of arguments passed in other than func and wait
+    var args = Array.prototype.slice.call(arguments, 2);
+    //setTimeout function for delay. Anon function won't take args so put func inside anon function
+    setTimeout(function() {
+      func.apply(null,args);
+    }, wait);
+    
   };
 
 
