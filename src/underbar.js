@@ -347,6 +347,19 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    //copy array using slice method
+    var arr = array.slice();
+    var len = arr.length;
+    var randomNum, temp;
+    //use the Fischer-Yates shuffle principles; this ensures equal distribution
+    //use while loop
+    while(len) {
+      randomNum = Math.floor(Math.random() * len-- );
+      temp = arr[len];
+      arr[len] = arr[randomNum];
+      arr[randomNum] = temp;
+    } 
+    return arr;
   };
 
 
